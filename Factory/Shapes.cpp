@@ -1,4 +1,16 @@
+#include<iostream>
 #include "Shapes.h"
+
+using std::cout;
+using std::cin;
+using std::endl;
+
+//abstract class MyShape
+
+MyShape::~MyShape()
+{
+	cout << this << ": shape destroyed\n";
+}
 
 int MyShape::checkSideSize(int side)
 {
@@ -12,10 +24,21 @@ void MyShape::setColor(Color color)
 	this->color = color;
 }
 
-MyCircle::MyCircle(int radius, Color color)
+void MyShape::setPosition(Vector2 position)
+{
+	if (position.x < 0) { position.x = 0; }
+	if (position.y < 0) { position.y = 0; }
+	this->position = position;
+}
+
+// class MyCircle
+
+MyCircle::MyCircle(int radius, Color color, Vector2 pos)
 {
 	setRadius(radius);
 	setColor(color);
+	setPosition(pos);
+	cout << this << ": circle created\n";
 }
 
 void MyCircle::setRadius(int radius) { this->radius = checkSideSize(radius); }
@@ -34,16 +57,20 @@ double MyCircle::getPerimeter() const
 	return 2 * std::numbers::pi * radius;
 }
 
-void MyCircle::draw(Vector2 position) const
+void MyCircle::draw() const
 {
 	DrawCircle(position.x, position.y, radius, color);
 }
 
-SquaredTriangle::SquaredTriangle(int sideA, int sideB, Color color)
+// class SquaredTriangle
+
+SquaredTriangle::SquaredTriangle(int sideA, int sideB, Color color, Vector2 pos)
 {
 	setColor(color);
 	setSideA(sideA);
 	setSideB(sideB);
+	setPosition(pos);
+	cout << this << ": squared triangle created\n";
 }
 
 void SquaredTriangle::setSideA(int side) { sideA = checkSideSize(side); }
@@ -67,18 +94,22 @@ double SquaredTriangle::getPerimeter() const
 	return sideA + sideB + getSideC();
 }
 
-void SquaredTriangle::draw(Vector2 position) const
+void SquaredTriangle::draw() const
 {
 	Vector2 pos1{ position.x + sideB, position.y };
 	Vector2 pos2{ position.x, position.y + sideA };
 	DrawTriangle(pos1, position, pos2, color);
 }
 
-MyRectangle::MyRectangle(int sideA, int sideB, Color color)
+//class MyRectangle
+
+MyRectangle::MyRectangle(int sideA, int sideB, Color color, Vector2 pos)
 {
 	setSideA(sideA);
 	setSideB(sideB);
 	setColor(color);
+	setPosition(pos);
+	cout << this << ": rectangle created\n";
 }
 
 void MyRectangle::setSideA(int side) { sideA = checkSideSize(side); }
@@ -97,7 +128,7 @@ double MyRectangle::getPerimeter() const
 	return 2 * (sideA + sideB);
 }
 
-void MyRectangle::draw(Vector2 position) const
+void MyRectangle::draw() const
 {
 	DrawRectangle(position.x, position.y, sideA, sideB, color);
 }

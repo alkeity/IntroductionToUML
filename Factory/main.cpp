@@ -38,8 +38,7 @@ int main()
 
 	const int screenWidth = 800;
 	const int screenHeight = 600;
-	std::vector<MyShape*> shapes = createShapes(5);
-	cout << "shapes created\n";
+	std::vector<MyShape*> shapes = createShapes(10);
 
 	InitWindow(screenWidth, screenHeight, "Shapes!");
 	SetTargetFPS(30);
@@ -48,9 +47,9 @@ int main()
 	{
 		BeginDrawing();
 		ClearBackground(BLACK);
-		for (size_t i = 0; i < 4; i++)
+		for (size_t i = 0; i < shapes.size(); i++)
 		{
-			shapes[i]->draw(Vector2(100, 100 + i * 100));
+			shapes[i]->draw();
 		}
 		EndDrawing();
 	}
