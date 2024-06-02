@@ -1,4 +1,8 @@
-﻿#include"Shapes.h"
+﻿#include<iostream>
+#include<vector>
+#include<random>
+#include"ShapeFactory.h"
+
 using std::cout;
 using std::cin;
 using std::endl;
@@ -12,15 +16,30 @@ using std::endl;
 //
 //Необходимо сгенерировать все эти фигуры в случайном порядке со случайными свойствами.
 
+std::vector<MyShape*> createShapes(int amount)
+{
+	ShapeFactory* creators[4]{ new CircleFactory, new SqTriangleFactory, new RectangleFactory, new SquareFactory };
+	std::vector<MyShape*> shapeArray;
+
+	for (size_t i = 0; i < amount; i++)
+	{
+		auto newShape = creators[rand() % 4]->create();
+		shapeArray.push_back(newShape);
+	}
+
+	return shapeArray;
+}
+
 
 int main()
 {
 	setlocale(LC_ALL, "");
-
-	MyShape* shapes[4]{ new MyCircle(30, VIOLET), new SquaredTriangle(40, 30, SKYBLUE), new MyRectangle(50, 30, BEIGE), new MySquare(40, PINK)};
+	srand(time(NULL));
 
 	const int screenWidth = 800;
 	const int screenHeight = 600;
+	std::vector<MyShape*> shapes = createShapes(5);
+	cout << "shapes created\n";
 
 	InitWindow(screenWidth, screenHeight, "Shapes!");
 	SetTargetFPS(30);
