@@ -2,10 +2,6 @@
 #include<numbers>
 #include<raylib.h>
 
-#define _USE_MATH_DEFINES
-#define MIN_SIZE 1
-#define MAX_SIDE_SIZE 100
-
 
 class MyShape
 {
