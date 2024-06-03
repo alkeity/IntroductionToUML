@@ -43,6 +43,11 @@ int main()
 	InitWindow(screenWidth, screenHeight, "Shapes!");
 	SetTargetFPS(30);
 
+	for (size_t i = 0; i < shapes.size(); i++)
+	{
+		shapes[i]->printInfo();
+	}
+
 	while (!WindowShouldClose())
 	{
 		BeginDrawing();

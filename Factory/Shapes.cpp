@@ -31,6 +31,12 @@ void MyShape::setPosition(Vector2 position)
 	this->position = position;
 }
 
+void MyShape::printInfo()
+{
+	cout << "Perimeter: " << getPerimeter() << endl;
+	cout << "Area: " << getArea() << endl << endl;
+}
+
 // class MyCircle
 
 MyCircle::MyCircle(int radius, Color color, Vector2 pos)
@@ -60,6 +66,13 @@ double MyCircle::getPerimeter() const
 void MyCircle::draw() const
 {
 	DrawCircle(position.x, position.y, radius, color);
+}
+
+void MyCircle::printInfo()
+{
+	cout << "Circle\n";
+	cout << "Radius: " << radius << endl;
+	MyShape::printInfo();
 }
 
 // class SquaredTriangle
@@ -101,6 +114,14 @@ void SquaredTriangle::draw() const
 	DrawTriangle(pos1, position, pos2, color);
 }
 
+void SquaredTriangle::printInfo()
+{
+	cout << "Squared triangle\n";
+	cout << "Side A: " << sideA << endl;
+	cout << "Side B: " << sideB << endl;
+	MyShape::printInfo();
+}
+
 //class MyRectangle
 
 MyRectangle::MyRectangle(int sideA, int sideB, Color color, Vector2 pos)
@@ -131,4 +152,19 @@ double MyRectangle::getPerimeter() const
 void MyRectangle::draw() const
 {
 	DrawRectangle(position.x, position.y, sideA, sideB, color);
+}
+
+void MyRectangle::printInfo()
+{
+	cout << "Rectangle\n";
+	cout << "Side A: " << sideA << endl;
+	cout << "Side B: " << sideB << endl;
+	MyShape::printInfo();
+}
+
+void MySquare::printInfo()
+{
+	cout << "Square\n";
+	cout << "Side: " << sideA << endl;
+	MyShape::printInfo();
 }

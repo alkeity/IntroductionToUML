@@ -17,6 +17,7 @@ public:
 	~MyShape();
 	void setColor(Color color);
 	void setPosition(Vector2 position);
+	virtual void printInfo();
 	virtual double getArea() const = 0;
 	virtual double getPerimeter() const = 0;
 	virtual void draw() const = 0;
@@ -34,6 +35,7 @@ public:
 	double getArea() const override;
 	double getPerimeter() const override;
 	void draw() const override;
+	void printInfo() override;
 };
 
 class SquaredTriangle : public MyShape
@@ -50,6 +52,7 @@ public:
 	double getArea() const override;
 	double getPerimeter() const override;
 	void draw() const override; // position is coord of the squared angle of triangle
+	void printInfo() override;
 };
 
 
@@ -67,6 +70,7 @@ public:
 	double getArea() const override;
 	double getPerimeter() const override;
 	void draw() const override;
+	virtual void printInfo();
 };
 
 
@@ -76,4 +80,5 @@ public:
 	const int& getSideB() const = delete;
 	const int& setSideB() const = delete;
 	MySquare(int side, Color color, Vector2 pos) :MyRectangle(side, side, color, pos) {}
+	void printInfo() override;
 };
