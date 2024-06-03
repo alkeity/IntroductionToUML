@@ -1,4 +1,4 @@
-#define _CRT_SECURE_NO_WARNINGS
+п»ї#define _CRT_SECURE_NO_WARNINGS
 #include<iostream>
 #include<time.h>
 
@@ -20,8 +20,8 @@ class Human
 public:
 	const std::string& getFirstName() const
 	{
-		// Константный метод обязательно должен возвращать константное значение
-		// константный метод не может изменять this
+		// РљРѕРЅСЃС‚Р°РЅС‚РЅС‹Р№ РјРµС‚РѕРґ РѕР±СЏР·Р°С‚РµР»СЊРЅРѕ РґРѕР»Р¶РµРЅ РІРѕР·РІСЂР°С‰Р°С‚СЊ РєРѕРЅСЃС‚Р°РЅС‚РЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
+		// РєРѕРЅСЃС‚Р°РЅС‚РЅС‹Р№ РјРµС‚РѕРґ РЅРµ РјРѕР¶РµС‚ РёР·РјРµРЅСЏС‚СЊ this
 		return firstName;
 	}
 
@@ -60,7 +60,7 @@ public:
 		tm* currentTime = localtime(&rtime);
 		unsigned int age = currentTime->tm_year - birthDate.tm_year;
 		if (currentTime->tm_yday < birthDate.tm_year) { age--; }
-		
+
 		cout << firstName << " " << lastName << " " << age << " y/o" << endl;
 	}
 

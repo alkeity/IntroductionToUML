@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{76c58bc1-9387-4e04-840d-f9445dd783db}</ProjectGuid>
-    <RootNamespace>Singletone</RootNamespace>
+    <ProjectGuid>{f7052254-becb-4c12-96b7-345ce99eb2eb}</ProjectGuid>
+    <RootNamespace>Singleton</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
