@@ -15,7 +15,13 @@ namespace MyGeometry
         YELLOW = 0x0000FFFF,
         GREY = 0x00AAAAAA,
         WHITE = 0x00FFFFFF,
-        BLACK = 0x00000000
+        BLACK = 0x00000000,
+        AQUAMARINE = 0x00D4FF7F,
+        HELIOTROPE = 0x00FF7FD4,
+        SALOMIE = 0x007FD4FF,
+        THISTLE = 0x00D8BFD8,
+        TICKLE_ME_PINK = 0x00AA7FFF,
+        MEDIUM_PURPLE = 0x00DB7093
     };
 
     class Shape
@@ -113,15 +119,6 @@ namespace MyGeometry
 
         void draw() const override
         {
-            /*for (size_t i = 0; i < height; i++)
-            {
-                for (size_t j = 0; j < width; j++)
-                {
-                    cout << "*";
-                }
-                cout << endl;
-            }*/
-
             HWND hwnd = GetConsoleWindow(); // получаем дескриптор окна консоли
             // HWND - handler to window, нужен для того чтобы обращаться к окну
             
@@ -146,7 +143,7 @@ namespace MyGeometry
             ReleaseDC(hwnd, hdc);
         }
 
-        void info() const override
+        virtual void info() const
         {
             cout << typeid(*this).name() << endl;
             cout << "Ширина: " << width << endl;
@@ -154,11 +151,70 @@ namespace MyGeometry
             Shape::info();
         }
     };
+
+    class Square :public Rectangle
+    {
+    public:
+        Square(double side, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
+            :Rectangle(side, side, x, y, lineWidth, color) {}
+
+        void info() const override
+        {
+            cout << typeid(*this).name() << endl;
+            cout << "Сторона: " << getWidth() << endl;
+            Shape::info();
+        }
+    };
+
+    class Circle :public Shape
+    {
+        double radius;
+    public:
+        //TODO
+    };
+
+    class Triangle :public Shape
+    {
+        double sideA;
+        double sideB;
+        double sideC;
+    public:
+        //TODO
+    };
+
+    class TriangleScalene :public Triangle
+    {
+    public:
+        //TODO
+    };
+
+    class TriangleRight :public Triangle
+    {
+    public:
+        //TODO
+    };
+
+    class TriangleIsosceles :public Triangle
+    {
+    public:
+        //TODO
+    };
+
+    class TriangleEquilateral :public Triangle
+    {
+    public:
+        //TODO
+    };
 }
 
 int main()
 {
     setlocale(LC_ALL, "");
-    MyGeometry::Rectangle rect(100, 50, 100, 200, 8, MyGeometry::Color::BLUE);
+
+    MyGeometry::Rectangle rect(100, 50, 30, 250, 8, MyGeometry::Color::AQUAMARINE);
+    MyGeometry::Square squea(50, 160, 250, 8, MyGeometry::Color::THISTLE);
+
     rect.info();
+    cout << endl;
+    squea.info();
 }
