@@ -1,6 +1,7 @@
 #include<iostream>
 #include<random>
 #include "ShapeFactory.h"
+#define MAX_SIDE_SIZE 100
 
 using std::cout;
 using std::cin;
