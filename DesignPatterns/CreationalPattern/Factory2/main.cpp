@@ -25,7 +25,8 @@ namespace MyGeometry
         SALOMIE = 0x007FD4FF,
         THISTLE = 0x00D8BFD8,
         TICKLE_ME_PINK = 0x00AA7FFF,
-        MEDIUM_PURPLE = 0x00DB7093
+        MEDIUM_PURPLE = 0x00DB7093,
+        TWILIGHT = 0x00CBBFD8
     };
 
 
@@ -358,7 +359,7 @@ namespace MyGeometry
         {
             vertArray[0] = { (long)x, (long)y };
             vertArray[1] = { (long)(x + sideA), (long)y };
-            vertArray[2] = {(long)x, (long)(y - sideB) };
+            vertArray[2] = { (long)x, (long)(y - sideB) };
         }
     };
 
@@ -368,6 +369,13 @@ namespace MyGeometry
     public:
         TriangleIsosceles(double side, double base, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
             :Triangle(base, side, side, x, y, lineWidth, color) {}
+
+        void getVerticles(POINT vertArray[3]) const override
+        {
+            vertArray[0] = { (long)x, (long)y };
+            vertArray[1] = { (long)(x + sideA), (long)y };
+            vertArray[2] = { (long)(x + sideA / 2), (long)(y - sideB) };
+        }
     };
 
 
@@ -376,6 +384,13 @@ namespace MyGeometry
     public:
         TriangleEquilateral(double side, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
             :Triangle(side, side, side, x, y, lineWidth, color) {}
+
+        void getVerticles(POINT vertArray[3]) const override
+        {
+            vertArray[0] = { (long)x, (long)y };
+            vertArray[1] = { (long)(x + sideA), (long)y };
+            vertArray[2] = { (long)(x + sideA / 2), (long)(y - sideA) };
+        }
     };
 }
 
@@ -383,7 +398,7 @@ int main()
 {
     setlocale(LC_ALL, "");
 
-    const unsigned int shapeArraySize = 5;
+    const unsigned int shapeArraySize = 7;
     unsigned int posY = 100;
     unsigned int lineWidth = 8;
 
@@ -392,8 +407,10 @@ int main()
         new MyGeometry::Rectangle(100, 50, 30, posY, lineWidth, MyGeometry::Color::AQUAMARINE),
         new MyGeometry::Square(50, 160, posY, lineWidth, MyGeometry::Color::THISTLE),
         new MyGeometry::Circle(25, 240, posY, lineWidth, MyGeometry::Color::TICKLE_ME_PINK),
-        new MyGeometry::TriangleScalene(30, 40, 50, 320, posY + 50, lineWidth, MyGeometry::Color::HELIOTROPE),
+        new MyGeometry::TriangleScalene(30, 40, 50, 320, posY + 50, lineWidth, MyGeometry::Color::SALOMIE),
         new MyGeometry::TriangleRight(60, 50, 410, posY + 50, lineWidth, MyGeometry::Color::MEDIUM_PURPLE),
+        new MyGeometry::TriangleIsosceles(80, 50, 500, posY + 50, lineWidth, MyGeometry::Color::HELIOTROPE),
+        new MyGeometry::TriangleEquilateral(60, 580, posY + 50, lineWidth, MyGeometry::Color::TWILIGHT)
     };
 
     for (size_t i = 0; i < shapeArraySize; i++)
