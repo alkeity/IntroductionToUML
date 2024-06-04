@@ -32,7 +32,7 @@ namespace MyGeometry
     class Shape
     {
     protected:
-        static const int MIN_SIZE = 50;
+        static const int MIN_SIZE = 20;
         static const int MAX_SIZE = 800;
         static const int MIN_LINE_WIDTH = 1;
         static const int MAX_LINE_WIDTH = 25;
@@ -241,20 +241,13 @@ namespace MyGeometry
 
     class Triangle :public Shape
     {
-    public:
-        Triangle(unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Shape(x, y, lineWidth, color) {}
-    };
-
-
-    class TriangleScalene :public Triangle
-    {
+    protected:
         double sideA;
         double sideB;
         double sideC;
     public:
-        TriangleScalene(double sideA, double sideB, double sideC, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(x, y, lineWidth, color)
+        Triangle(double sideA, double sideB, double sideC, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
+            :Shape(x, y, lineWidth, color)
         {
             setSideA(sideA);
             setSideB(sideB);
@@ -265,57 +258,92 @@ namespace MyGeometry
         const double& getSideB() const { return sideB; }
         const double& getSideC() const { return sideC; }
 
-        void setSideA(double side)
+        void setSideA(double side) { sideA = setSize(side); };
+        void setSideB(double side) { sideB = setSize(side); };
+        void setSideC(double side) { sideC = setSize(side); };
+
+        double getPerimeter() const override
         {
-            sideA = setSize(side);
-        }
-        void setSideB(double side)
-        {
-            sideB = setSize(side);
-        }
-        void setSideC(double side)
-        {
-            sideC = setSize(side);
+            return sideA + sideB + sideC;
         }
 
-        bool isDegenerate()
+        double getArea() const override
+        {
+            double p = getPerimeter() / 2;
+            return sqrt(p * (p - sideA) * (p - sideB) * (p - sideC));
+        }
+
+        double getHeightFromSideA() const
+        {
+            return (2 * getArea()) / sideA;
+        }
+
+        bool isDegenerate() const
         {
             return sideA + sideB < sideC ||
                 sideA + sideC < sideB ||
                 sideB + sideC < sideA;
+        }
+
+        void info() const override
+        {
+            cout << typeid(*this).name() << endl;
+            cout << "Сторона A: " << sideA << endl;
+            cout << "Сторона B: " << sideB << endl;
+            cout << "Сторона C: " << sideC << endl;
+            cout << "Вырожденный: ";
+            if (isDegenerate()) { cout << "Да\n"; }
+            else
+            {
+                cout << "Нет\n";
+                Shape::info();
+            }
+        }
+    };
+
+
+    class TriangleScalene :public Triangle
+    {
+        
+    public:
+        TriangleScalene(double sideA, double sideB, double sideC, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
+            :Triangle(sideA, sideB, sideC, x, y, lineWidth, color) {}
+
+        void draw() const override
+        {
+            if (!isDegenerate())
+            {
+                HWND hwnd = GetConsoleWindow();
+                HDC hdc = GetDC(hwnd);
+                HPEN hPen = CreatePen(PS_SOLID, lineWindth, color);
+                HBRUSH hBrush = CreateSolidBrush(color);
+                POINT verticles[3]{
+                    {x, y}, {x + sideA, y},
+                    {x + sqrt(sideB * sideB + getHeightFromSideA() * getHeightFromSideA()), y - getHeightFromSideA()}
+                };
+
+                SelectObject(hdc, hPen);
+                SelectObject(hdc, hBrush);
+
+                ::Polygon(hdc, verticles, 3);
+
+                DeleteObject(hPen);
+                DeleteObject(hBrush);
+                ReleaseDC(hwnd, hdc);
+            }
         }
     };
 
 
     class TriangleRight :public Triangle
     {
-        double legA;
-        double legB;
+        double getHypotenuse(double legA, double legB) const
+        {
+            return sqrt(legA * legA + legB * legB);
+        }
     public:
         TriangleRight(double legA, double legB, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(x, y, lineWidth, color)
-        {
-            setLegA(legA);
-            setLegB(legB);
-        }
-
-        const double& getLegA() const { return legA; }
-        const double& getLegB() const { return legB; }
-
-        void setLegA(double size) { legA = setSize(size); }
-        void setLegB(double size) { legB = setSize(size); }
-
-        double getHypotenuse() const { return sqrt(legA * legA + legB * legB); }
-
-        double getArea() const override
-        {
-            return (legA * legB) / 2;
-        }
-
-        double getPerimeter() const override
-        {
-            return legA + legB + getHypotenuse();
-        }
+            :Triangle(legA, legB, getHypotenuse(legA, legB), x, y, lineWidth, color) {}
 
         void draw() const override
         {
@@ -323,7 +351,7 @@ namespace MyGeometry
             HDC hdc = GetDC(hwnd);
             HPEN hPen = CreatePen(PS_SOLID, lineWindth, color);
             HBRUSH hBrush = CreateSolidBrush(color);
-            POINT verticles[3]{ {x, y}, {x + legA, y}, {x, y - legB} };
+            POINT verticles[3]{ {x, y}, {x + sideA, y}, {x, y - sideB} };
 
             SelectObject(hdc, hPen);
             SelectObject(hdc, hBrush);
@@ -334,47 +362,22 @@ namespace MyGeometry
             DeleteObject(hBrush);
             ReleaseDC(hwnd, hdc);
         }
-
-        void info() const override
-        {
-            cout << typeid(*this).name() << endl;
-            cout << "Катет A: " << legA << endl;
-            cout << "Катет B: " << legB << endl;
-            cout << "Гипотенуза: " << getHypotenuse() << endl;
-            Shape::info();
-        }
     };
 
 
     class TriangleIsosceles :public Triangle
     {
-        double side;
-        double base;
     public:
         TriangleIsosceles(double side, double base, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(x, y, lineWidth, color)
-        {
-
-        }
-
-        const double& getSide() const { return side; }
-        const double& getBase() const { return side; }
+            :Triangle(side, side, base, x, y, lineWidth, color) {}
     };
 
 
     class TriangleEquilateral :public Triangle
     {
-        double side;
     public:
         TriangleEquilateral(double side, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(x, y, lineWidth, color)
-        {
-            setSide(side);
-        }
-
-        const double& getSide() const { return side; }
-
-        void setSide(double size) { side = setSize(size); }
+            :Triangle(side, side, side, x, y, lineWidth, color) {}
     };
 }
 
@@ -382,16 +385,17 @@ int main()
 {
     setlocale(LC_ALL, "");
 
-    const unsigned int shapeArraySize = 4;
-    unsigned int posY = 150;
+    const unsigned int shapeArraySize = 5;
+    unsigned int posY = 100;
     unsigned int lineWidth = 8;
 
     MyGeometry::Shape* shapes[shapeArraySize]
     {
         new MyGeometry::Rectangle(100, 50, 30, posY, lineWidth, MyGeometry::Color::AQUAMARINE),
         new MyGeometry::Square(50, 160, posY, lineWidth, MyGeometry::Color::THISTLE),
-        new MyGeometry::Circle(50, 240, posY, lineWidth, MyGeometry::Color::TICKLE_ME_PINK),
-        new MyGeometry::TriangleRight(50, 60, 370, posY + 50, lineWidth, MyGeometry::Color::MEDIUM_PURPLE)
+        new MyGeometry::Circle(25, 240, posY, lineWidth, MyGeometry::Color::TICKLE_ME_PINK),
+        new MyGeometry::TriangleScalene(30, 40, 50, 320, posY + 50, lineWidth, MyGeometry::Color::HELIOTROPE),
+        new MyGeometry::TriangleRight(60, 50, 410, posY + 50, lineWidth, MyGeometry::Color::MEDIUM_PURPLE),
     };
 
     for (size_t i = 0; i < shapeArraySize; i++)
