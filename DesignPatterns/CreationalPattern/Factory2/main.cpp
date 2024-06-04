@@ -1,5 +1,8 @@
 ﻿#include<iostream>
 #include<Windows.h>
+#include<numbers>
+
+#define _USE_MATH_DEFINES
 
 using std::cout;
 using std::cin;
@@ -23,6 +26,7 @@ namespace MyGeometry
         TICKLE_ME_PINK = 0x00AA7FFF,
         MEDIUM_PURPLE = 0x00DB7093
     };
+
 
     class Shape
     {
@@ -89,6 +93,7 @@ namespace MyGeometry
         }
     };
 
+
     class Rectangle :public Shape
     {
         double width;
@@ -152,6 +157,7 @@ namespace MyGeometry
         }
     };
 
+
     class Square :public Rectangle
     {
     public:
@@ -166,27 +172,74 @@ namespace MyGeometry
         }
     };
 
+
     class Circle :public Shape
     {
         double radius;
     public:
-        //TODO
+        Circle(double radius, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
+            :Shape(x, y, lineWidth, color)
+        {
+            setRadius(radius);
+        }
+
+        const double& getRadius() const { return radius; }
+
+        void setRadius(double radius) { this->radius = setSize(radius); }
+
+        double getDiameter() const { return radius * 2; }
+
+        double getArea() const override
+        {
+            return std::numbers::pi * (radius * radius);
+        }
+
+        double getPerimeter() const override
+        {
+            return 2 * std::numbers::pi * radius;
+        }
+
+        void draw() const override
+        {
+            HWND hwnd = GetConsoleWindow();
+            HDC hdc = GetDC(hwnd);
+            HPEN hPen = CreatePen(PS_SOLID, lineWindth, color);
+            HBRUSH hBrush = CreateSolidBrush(color);
+
+            SelectObject(hdc, hPen);
+            SelectObject(hdc, hBrush);
+
+            ::RoundRect(hdc, x, y, x + getDiameter(), y + getDiameter(), getDiameter(), getDiameter());
+
+            DeleteObject(hPen);
+            DeleteObject(hBrush);
+            ReleaseDC(hwnd, hdc);
+        }
+
+        void info() const override
+        {
+            cout << typeid(*this).name() << endl;
+            cout << "Радиус: " << radius << endl;
+            cout << "Диаметр: " << getDiameter() << endl;
+            Shape::info();
+        }
     };
+
 
     class Triangle :public Shape
     {
+    protected:
         double sideA;
         double sideB;
-        double sideC;
     public:
-        //TODO
     };
+
 
     class TriangleScalene :public Triangle
     {
     public:
-        //TODO
     };
+
 
     class TriangleRight :public Triangle
     {
@@ -194,11 +247,13 @@ namespace MyGeometry
         //TODO
     };
 
+
     class TriangleIsosceles :public Triangle
     {
     public:
         //TODO
     };
+
 
     class TriangleEquilateral :public Triangle
     {
@@ -211,10 +266,16 @@ int main()
 {
     setlocale(LC_ALL, "");
 
-    MyGeometry::Rectangle rect(100, 50, 30, 250, 8, MyGeometry::Color::AQUAMARINE);
-    MyGeometry::Square squea(50, 160, 250, 8, MyGeometry::Color::THISTLE);
+    unsigned int posY = 350;
+    unsigned int lineWidth = 8;
+
+    MyGeometry::Rectangle rect(100, 50, 30, posY, lineWidth, MyGeometry::Color::AQUAMARINE);
+    MyGeometry::Square squea(50, 160, posY, lineWidth, MyGeometry::Color::THISTLE);
+    MyGeometry::Circle cir(50, 260, posY, lineWidth, MyGeometry::Color::TICKLE_ME_PINK);
 
     rect.info();
     cout << endl;
     squea.info();
+    cout << endl;
+    cir.info();
 }
