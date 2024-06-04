@@ -160,14 +160,26 @@ namespace MyGeometry
 
     class Square :public Rectangle
     {
+        using Rectangle::getHeight;
+        using Rectangle::getWidth;
+        using Rectangle::setHeight;
+        using Rectangle::setWidth;
     public:
         Square(double side, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
             :Rectangle(side, side, x, y, lineWidth, color) {}
 
+        const double& getSide() const { return getWidth(); }
+
+        void setSide(double side)
+        {
+            setWidth(side);
+            setHeight(side);
+        }
+
         void info() const override
         {
             cout << typeid(*this).name() << endl;
-            cout << "Сторона: " << getWidth() << endl;
+            cout << "Сторона: " << getSide() << endl;
             Shape::info();
         }
     };
@@ -232,33 +244,55 @@ namespace MyGeometry
         double sideA;
         double sideB;
     public:
+        Triangle(double sideA, double sideB, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
+            :Shape(x, y, lineWidth, color)
+        {
+            setSideA(sideA);
+            setSideB(sideB);
+        }
+
+        const double& getSideA() const { return sideA; }
+        const double& getSideB() const { return sideB; }
+
+        void setSideA(double side) { sideA = setSize(side); }
+        void setSideB(double side) { sideB = setSize(side); }
+
+        virtual void getSideC() const = 0;
     };
 
 
     class TriangleScalene :public Triangle
     {
     public:
+        TriangleScalene(double sideA, double sideB, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
+            :Triangle(sideA, sideB, x, y, lineWidth, color){}
     };
 
 
     class TriangleRight :public Triangle
     {
     public:
-        //TODO
+        TriangleRight(double sideA, double sideB, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
+            :Triangle(sideA, sideB, x, y, lineWidth, color) {}
     };
 
 
     class TriangleIsosceles :public Triangle
     {
     public:
-        //TODO
+        TriangleIsosceles(double side, double base, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
+            :Triangle(side, base, x, y, lineWidth, color) {}
     };
 
 
     class TriangleEquilateral :public Triangle
     {
     public:
-        //TODO
+        const double& getSideB() const = delete;
+
+
+        TriangleEquilateral(double side, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
+            :Triangle(side, side, x, y, lineWidth, color) {}
     };
 }
 
