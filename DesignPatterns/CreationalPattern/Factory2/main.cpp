@@ -262,6 +262,8 @@ namespace MyGeometry
         void setSideB(double side) { sideB = setSize(side); };
         void setSideC(double side) { sideC = setSize(side); };
 
+        virtual void getVerticles(POINT vertArray[3]) const = 0;
+
         double getPerimeter() const override
         {
             return sideA + sideB + sideC;
@@ -299,15 +301,6 @@ namespace MyGeometry
                 Shape::info();
             }
         }
-    };
-
-
-    class TriangleScalene :public Triangle
-    {
-        
-    public:
-        TriangleScalene(double sideA, double sideB, double sideC, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(sideA, sideB, sideC, x, y, lineWidth, color) {}
 
         void draw() const override
         {
@@ -317,10 +310,9 @@ namespace MyGeometry
                 HDC hdc = GetDC(hwnd);
                 HPEN hPen = CreatePen(PS_SOLID, lineWindth, color);
                 HBRUSH hBrush = CreateSolidBrush(color);
-                POINT verticles[3]{
-                    {x, y}, {x + sideA, y},
-                    {x + sqrt(sideB * sideB + getHeightFromSideA() * getHeightFromSideA()), y - getHeightFromSideA()}
-                };
+                POINT verticles[3];
+
+                getVerticles(verticles);
 
                 SelectObject(hdc, hPen);
                 SelectObject(hdc, hBrush);
@@ -335,6 +327,23 @@ namespace MyGeometry
     };
 
 
+    class TriangleScalene :public Triangle
+    {
+    public:
+        TriangleScalene(double sideA, double sideB, double sideC, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
+            :Triangle(sideA, sideB, sideC, x, y, lineWidth, color) {}
+
+        void getVerticles(POINT vertArray[3]) const override
+        {
+            vertArray[0] = { (long)x, (long)y };
+            vertArray[1] = { (long)(x + sideA), (long)y };
+            vertArray[2] = {
+                (long)(x + sqrt(sideB * sideB + getHeightFromSideA() * getHeightFromSideA())),
+                (long)(y - getHeightFromSideA()) };
+        }
+    };
+
+
     class TriangleRight :public Triangle
     {
         double getHypotenuse(double legA, double legB) const
@@ -345,22 +354,11 @@ namespace MyGeometry
         TriangleRight(double legA, double legB, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
             :Triangle(legA, legB, getHypotenuse(legA, legB), x, y, lineWidth, color) {}
 
-        void draw() const override
+        void getVerticles(POINT vertArray[3]) const override
         {
-            HWND hwnd = GetConsoleWindow();
-            HDC hdc = GetDC(hwnd);
-            HPEN hPen = CreatePen(PS_SOLID, lineWindth, color);
-            HBRUSH hBrush = CreateSolidBrush(color);
-            POINT verticles[3]{ {x, y}, {x + sideA, y}, {x, y - sideB} };
-
-            SelectObject(hdc, hPen);
-            SelectObject(hdc, hBrush);
-
-            ::Polygon(hdc, verticles, 3);
-
-            DeleteObject(hPen);
-            DeleteObject(hBrush);
-            ReleaseDC(hwnd, hdc);
+            vertArray[0] = { (long)x, (long)y };
+            vertArray[1] = { (long)(x + sideA), (long)y };
+            vertArray[2] = {(long)x, (long)(y - sideB) };
         }
     };
 
@@ -369,7 +367,7 @@ namespace MyGeometry
     {
     public:
         TriangleIsosceles(double side, double base, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(side, side, base, x, y, lineWidth, color) {}
+            :Triangle(base, side, side, x, y, lineWidth, color) {}
     };
 
 
