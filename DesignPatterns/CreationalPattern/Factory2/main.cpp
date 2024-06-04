@@ -1,6 +1,7 @@
 ﻿#include<iostream>
 #include<Windows.h>
 #include<numbers>
+#include<vector>
 
 #define _USE_MATH_DEFINES
 
@@ -240,59 +241,140 @@ namespace MyGeometry
 
     class Triangle :public Shape
     {
-    protected:
-        double sideA;
-        double sideB;
     public:
-        Triangle(double sideA, double sideB, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Shape(x, y, lineWidth, color)
-        {
-            setSideA(sideA);
-            setSideB(sideB);
-        }
-
-        const double& getSideA() const { return sideA; }
-        const double& getSideB() const { return sideB; }
-
-        void setSideA(double side) { sideA = setSize(side); }
-        void setSideB(double side) { sideB = setSize(side); }
-
-        virtual void getSideC() const = 0;
+        Triangle(unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
+            :Shape(x, y, lineWidth, color) {}
     };
 
 
     class TriangleScalene :public Triangle
     {
+        double sideA;
+        double sideB;
+        double sideC;
     public:
-        TriangleScalene(double sideA, double sideB, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(sideA, sideB, x, y, lineWidth, color){}
+        TriangleScalene(double sideA, double sideB, double sideC, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
+            :Triangle(x, y, lineWidth, color)
+        {
+            setSideA(sideA);
+            setSideB(sideB);
+            setSideC(sideC);
+        }
+
+        const double& getSideA() const { return sideA; }
+        const double& getSideB() const { return sideB; }
+        const double& getSideC() const { return sideC; }
+
+        void setSideA(double side)
+        {
+            sideA = setSize(side);
+        }
+        void setSideB(double side)
+        {
+            sideB = setSize(side);
+        }
+        void setSideC(double side)
+        {
+            sideC = setSize(side);
+        }
+
+        bool isDegenerate()
+        {
+            return sideA + sideB < sideC ||
+                sideA + sideC < sideB ||
+                sideB + sideC < sideA;
+        }
     };
 
 
     class TriangleRight :public Triangle
     {
+        double legA;
+        double legB;
     public:
-        TriangleRight(double sideA, double sideB, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(sideA, sideB, x, y, lineWidth, color) {}
+        TriangleRight(double legA, double legB, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
+            :Triangle(x, y, lineWidth, color)
+        {
+            setLegA(legA);
+            setLegB(legB);
+        }
+
+        const double& getLegA() const { return legA; }
+        const double& getLegB() const { return legB; }
+
+        void setLegA(double size) { legA = setSize(size); }
+        void setLegB(double size) { legB = setSize(size); }
+
+        double getHypotenuse() const { return sqrt(legA * legA + legB * legB); }
+
+        double getArea() const override
+        {
+            return (legA * legB) / 2;
+        }
+
+        double getPerimeter() const override
+        {
+            return legA + legB + getHypotenuse();
+        }
+
+        void draw() const override
+        {
+            HWND hwnd = GetConsoleWindow();
+            HDC hdc = GetDC(hwnd);
+            HPEN hPen = CreatePen(PS_SOLID, lineWindth, color);
+            HBRUSH hBrush = CreateSolidBrush(color);
+            POINT verticles[3]{ {x, y}, {x + legA, y}, {x, y - legB} };
+
+            SelectObject(hdc, hPen);
+            SelectObject(hdc, hBrush);
+
+            ::Polygon(hdc, verticles, 3);
+
+            DeleteObject(hPen);
+            DeleteObject(hBrush);
+            ReleaseDC(hwnd, hdc);
+        }
+
+        void info() const override
+        {
+            cout << typeid(*this).name() << endl;
+            cout << "Катет A: " << legA << endl;
+            cout << "Катет B: " << legB << endl;
+            cout << "Гипотенуза: " << getHypotenuse() << endl;
+            Shape::info();
+        }
     };
 
 
     class TriangleIsosceles :public Triangle
     {
+        double side;
+        double base;
     public:
         TriangleIsosceles(double side, double base, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(side, base, x, y, lineWidth, color) {}
+            :Triangle(x, y, lineWidth, color)
+        {
+
+        }
+
+        const double& getSide() const { return side; }
+        const double& getBase() const { return side; }
     };
 
 
     class TriangleEquilateral :public Triangle
     {
+        double side;
     public:
-        const double& getSideB() const = delete;
-
-
         TriangleEquilateral(double side, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(side, side, x, y, lineWidth, color) {}
+            :Triangle(x, y, lineWidth, color)
+        {
+            setSide(side);
+        }
+
+        const double& getSide() const { return side; }
+
+        void setSide(double size) { side = setSize(size); }
     };
 }
 
@@ -300,16 +382,20 @@ int main()
 {
     setlocale(LC_ALL, "");
 
-    unsigned int posY = 350;
+    const unsigned int shapeArraySize = 4;
+    unsigned int posY = 150;
     unsigned int lineWidth = 8;
 
-    MyGeometry::Rectangle rect(100, 50, 30, posY, lineWidth, MyGeometry::Color::AQUAMARINE);
-    MyGeometry::Square squea(50, 160, posY, lineWidth, MyGeometry::Color::THISTLE);
-    MyGeometry::Circle cir(50, 260, posY, lineWidth, MyGeometry::Color::TICKLE_ME_PINK);
+    MyGeometry::Shape* shapes[shapeArraySize]
+    {
+        new MyGeometry::Rectangle(100, 50, 30, posY, lineWidth, MyGeometry::Color::AQUAMARINE),
+        new MyGeometry::Square(50, 160, posY, lineWidth, MyGeometry::Color::THISTLE),
+        new MyGeometry::Circle(50, 240, posY, lineWidth, MyGeometry::Color::TICKLE_ME_PINK),
+        new MyGeometry::TriangleRight(50, 60, 370, posY + 50, lineWidth, MyGeometry::Color::MEDIUM_PURPLE)
+    };
 
-    rect.info();
-    cout << endl;
-    squea.info();
-    cout << endl;
-    cir.info();
+    for (size_t i = 0; i < shapeArraySize; i++)
+    {
+        shapes[i]->draw();
+    }
 }
