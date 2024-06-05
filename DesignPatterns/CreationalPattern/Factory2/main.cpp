@@ -49,6 +49,7 @@ namespace MyGeometry
         COLORREF color;
 #endif // USING_COLORREF
 
+        virtual void drawShape(HDC& hdc) const = 0;
     public:
         static const int MIN_SIZE = 20;
         static const int MAX_SIZE = 800;
@@ -97,7 +98,19 @@ namespace MyGeometry
 
         virtual double getArea() const = 0;
         virtual double getPerimeter() const = 0;
-        virtual void draw() const = 0;
+        virtual void draw() const
+        {
+            HWND hwnd = GetConsoleWindow();
+            HDC hdc = GetDC(hwnd);
+            HPEN hPen = CreatePen(PS_SOLID, lineWindth, color);
+            HBRUSH hBrush = CreateSolidBrush(color);
+            SelectObject(hdc, hPen);
+            SelectObject(hdc, hBrush);
+            drawShape(hdc);
+            DeleteObject(hPen);
+            DeleteObject(hBrush);
+            ReleaseDC(hwnd, hdc);
+        }
 
         virtual void info() const
         {
@@ -112,6 +125,11 @@ namespace MyGeometry
     {
         double width;
         double height;
+
+        void drawShape(HDC& hdc) const override
+        {
+            ::Rectangle(hdc, x, y, x + width, y + height);
+        }
     public:
         Rectangle(double width, double length, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
         {
@@ -133,32 +151,6 @@ namespace MyGeometry
         double getPerimeter() const override
         {
             return 2 * (width + height);
-        }
-
-        void draw() const override
-        {
-            HWND hwnd = GetConsoleWindow(); // получаем дескриптор окна консоли
-            // HWND - handler to window, нужен для того чтобы обращаться к окну
-            
-            // чтобы рисовать, нужен контекст устройства (device context), он есть у каждого окна
-            HDC hdc = GetDC(hwnd);
-            // hdc - то, на чем мы будем рисовать (аналог бумаги)
-
-            // для рисования требуются ручки-карандаши-кисти-этцетера:
-            HPEN hPen = CreatePen(PS_SOLID, lineWindth, color); // карандаш (ручка) рисует контур фигуры
-            HBRUSH hBrush = CreateSolidBrush(color); // кисть заливает фигуру
-            // iStyle - тип линии (это можно и нужно погуглить)
-
-            // теперь нужно выбрать, чем и на чем рисовать:
-            SelectObject(hdc, hPen);
-            SelectObject(hdc, hBrush);
-
-            ::Rectangle(hdc, x, y, x + width, y + height);
-
-            // удаляем все созданные объекты для освобождения ресурсов
-            DeleteObject(hPen);
-            DeleteObject(hBrush);
-            ReleaseDC(hwnd, hdc);
         }
 
         virtual void info() const
@@ -200,6 +192,11 @@ namespace MyGeometry
     class Circle :public Shape
     {
         double radius;
+
+        void drawShape(HDC& hdc) const override
+        {
+            ::Ellipse(hdc, x, y, x + getDiameter(), y + getDiameter());
+        }
     public:
         Circle(double radius, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
         {
@@ -222,24 +219,6 @@ namespace MyGeometry
             return std::numbers::pi * getDiameter();
         }
 
-        void draw() const override
-        {
-            HWND hwnd = GetConsoleWindow();
-            HDC hdc = GetDC(hwnd);
-            HPEN hPen = CreatePen(PS_SOLID, lineWindth, color);
-            HBRUSH hBrush = CreateSolidBrush(color);
-
-            SelectObject(hdc, hPen);
-            SelectObject(hdc, hBrush);
-
-            //::RoundRect(hdc, x, y, x + getDiameter(), y + getDiameter(), getDiameter(), getDiameter());
-            ::Ellipse(hdc, x, y, x + getDiameter(), y + getDiameter());
-
-            DeleteObject(hPen);
-            DeleteObject(hBrush);
-            ReleaseDC(hwnd, hdc);
-        }
-
         void info() const override
         {
             cout << typeid(*this).name() << endl;
@@ -256,6 +235,13 @@ namespace MyGeometry
         double sideA;
         double sideB;
         double sideC;
+
+        void drawShape(HDC& hdc) const override
+        {
+            POINT verticles[3];
+            getVerticles(verticles);
+            ::Polygon(hdc, verticles, 3);
+        }
     public:
         Triangle(double sideA, double sideB, double sideC, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
         {
@@ -276,18 +262,23 @@ namespace MyGeometry
 
         double getPerimeter() const override
         {
-            return sideA + sideB + sideC;
+            return isDegenerate() ? 0 : sideA + sideB + sideC;
         }
 
         double getArea() const override
         {
-            double p = getPerimeter() / 2;
-            return sqrt(p * (p - sideA) * (p - sideB) * (p - sideC));
+            double area = 0;
+            if (!isDegenerate())
+            {
+                double p = getPerimeter() / 2;
+                area = sqrt(p * (p - sideA) * (p - sideB) * (p - sideC));
+            }
+            return area;
         }
 
         double getHeightFromSideA() const
         {
-            return (2 * getArea()) / sideA;
+            return isDegenerate() ? 0 : (2 * getArea()) / sideA;
         }
 
         bool isDegenerate() const
@@ -314,25 +305,7 @@ namespace MyGeometry
 
         void draw() const override
         {
-            if (!isDegenerate())
-            {
-                HWND hwnd = GetConsoleWindow();
-                HDC hdc = GetDC(hwnd);
-                HPEN hPen = CreatePen(PS_SOLID, lineWindth, color);
-                HBRUSH hBrush = CreateSolidBrush(color);
-                POINT verticles[3];
-
-                getVerticles(verticles);
-
-                SelectObject(hdc, hPen);
-                SelectObject(hdc, hBrush);
-
-                ::Polygon(hdc, verticles, 3);
-
-                DeleteObject(hPen);
-                DeleteObject(hBrush);
-                ReleaseDC(hwnd, hdc);
-            }
+            if (!isDegenerate()) { Shape::draw(); }
         }
     };
 
@@ -404,7 +377,7 @@ namespace MyGeometry
 
     Shape* ShapeFactory(int shapeID)
     {
-#define PARAMS rand() % 700, rand() % 300, rand() % Shape::MAX_LINE_WIDTH, RGB(rand(), rand(), rand())
+#define PARAMS 100 + rand() % 700, 200 + rand() % 200, rand() % Shape::MAX_LINE_WIDTH, RGB(rand(), rand(), rand())
         Shape* shape = nullptr;
         const unsigned int maxSize = Shape::MAX_SIZE / 2;
         switch (shapeID)
@@ -419,18 +392,30 @@ namespace MyGeometry
             shape = new Circle(rand() % maxSize, PARAMS);
             break;
         case 4:
-            shape = new TriangleScalene(
-                rand() % maxSize, rand() % maxSize, rand() % maxSize,
-                PARAMS);
+            do
+            {
+                shape = new TriangleScalene(
+                    rand() % maxSize, rand() % maxSize, rand() % maxSize,
+                    PARAMS);
+            } while (dynamic_cast<Triangle*>(shape)->isDegenerate());
             break;
         case 5:
-            shape = new TriangleRight(rand() % maxSize, rand() % maxSize, PARAMS);
+            do
+            {
+                shape = new TriangleRight(rand() % maxSize, rand() % maxSize, PARAMS);
+            } while (dynamic_cast<Triangle*>(shape)->isDegenerate());
             break;
         case 6:
-            shape = new TriangleIsosceles(rand() % maxSize, rand() % maxSize, PARAMS);
+            do
+            {
+                shape = new TriangleIsosceles(rand() % maxSize, rand() % maxSize, PARAMS);
+            } while (dynamic_cast<Triangle*>(shape)->isDegenerate());
             break;
         case 7:
-            shape = new TriangleEquilateral(rand() % maxSize, PARAMS);
+            do
+            {
+                shape = new TriangleEquilateral(rand() % maxSize, PARAMS);
+            } while (dynamic_cast<Triangle*>(shape)->isDegenerate());
             break;
         default:
             break;
