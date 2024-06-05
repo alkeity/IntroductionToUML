@@ -374,55 +374,73 @@ namespace MyGeometry
             vertArray[2] = { (long)(x + sideA / 2), (long)(y - sideA) };
         }
     };
+}
 
-    Shape* ShapeFactory(int shapeID)
+
+class ShapeFactory
+{
+    //TODO user set stats, maybe?
+#define PARAMS 100 + rand() % 700, 200 + rand() % 200, rand() % MyGeometry::Shape::MAX_LINE_WIDTH, RGB(rand(), rand(), rand())
+
+    MyGeometry::Shape* createRandomStatsShape(unsigned int shapeID)
     {
-#define PARAMS 100 + rand() % 700, 200 + rand() % 200, rand() % Shape::MAX_LINE_WIDTH, RGB(rand(), rand(), rand())
-        Shape* shape = nullptr;
-        const unsigned int maxSize = Shape::MAX_SIZE / 2;
+        MyGeometry::Shape* shape = nullptr;
+        const unsigned int maxSize = MyGeometry::Shape::MAX_SIZE / 2;
         switch (shapeID)
         {
         case 1:
-            shape = new Rectangle(rand() % maxSize, rand() % maxSize, PARAMS);
+            shape = new MyGeometry::Rectangle(rand() % maxSize, rand() % maxSize, PARAMS);
             break;
         case 2:
-            shape = new Square(rand() % maxSize, PARAMS);
+            shape = new MyGeometry::Square(rand() % maxSize, PARAMS);
             break;
         case 3:
-            shape = new Circle(rand() % maxSize, PARAMS);
+            shape = new MyGeometry::Circle(rand() % maxSize, PARAMS);
             break;
-        case 4:
+        case 4: case 5: case 6: case 7:
             do
             {
-                shape = new TriangleScalene(
-                    rand() % maxSize, rand() % maxSize, rand() % maxSize,
-                    PARAMS);
-            } while (dynamic_cast<Triangle*>(shape)->isDegenerate());
+                switch (shapeID)
+                {
+                case 4:
+                    shape = new MyGeometry::TriangleScalene(
+                        rand() % maxSize, rand() % maxSize, rand() % maxSize,
+                        PARAMS);
+                    break;
+                case 5:
+                    shape = new MyGeometry::TriangleRight(rand() % maxSize, rand() % maxSize, PARAMS);
+                    break;
+                case 6:
+                    shape = new MyGeometry::TriangleIsosceles(rand() % maxSize, rand() % maxSize, PARAMS);
+                    break;
+                case 7:
+                    shape = new MyGeometry::TriangleEquilateral(rand() % maxSize, PARAMS);
+                    break;
+                }
+            } while (dynamic_cast<MyGeometry::Triangle*>(shape)->isDegenerate());
             break;
-        case 5:
-            do
-            {
-                shape = new TriangleRight(rand() % maxSize, rand() % maxSize, PARAMS);
-            } while (dynamic_cast<Triangle*>(shape)->isDegenerate());
-            break;
-        case 6:
-            do
-            {
-                shape = new TriangleIsosceles(rand() % maxSize, rand() % maxSize, PARAMS);
-            } while (dynamic_cast<Triangle*>(shape)->isDegenerate());
-            break;
-        case 7:
-            do
-            {
-                shape = new TriangleEquilateral(rand() % maxSize, PARAMS);
-            } while (dynamic_cast<Triangle*>(shape)->isDegenerate());
-            break;
-        default:
-            break;
+        default: break;
         }
         return shape;
     }
-}
+
+public:
+    MyGeometry::Shape* createRectangle() { return createRandomStatsShape(1); }
+
+    MyGeometry::Shape* createSquare() { return createRandomStatsShape(2); }
+
+    MyGeometry::Shape* createCircle() { return createRandomStatsShape(3); }
+
+    MyGeometry::Shape* createTriangleScalene() { return createRandomStatsShape(4); }
+
+    MyGeometry::Shape* createTriangleRight() { return createRandomStatsShape(5); }
+
+    MyGeometry::Shape* createTriangleIsosceles() { return createRandomStatsShape(6); }
+
+    MyGeometry::Shape* createTriangleEquilateral() { return createRandomStatsShape(7); }
+
+    MyGeometry::Shape* createRandomShape() { return createRandomStatsShape(1 + rand() % 7); }
+};
 
 int main()
 {
@@ -449,10 +467,11 @@ int main()
 #ifdef USING_COLORREF
 
     MyGeometry::Shape* shapes[shapeArraySize];
+    ShapeFactory shapeFactory;
 
     for (size_t i = 0; i < shapeArraySize; i++)
     {
-        shapes[i] = MyGeometry::ShapeFactory(1 + rand() % 7);
+        shapes[i] = shapeFactory.createRandomShape();
     }
 #endif // USING_COLORREF
 
