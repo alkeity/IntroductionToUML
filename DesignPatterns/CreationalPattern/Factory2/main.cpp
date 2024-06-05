@@ -5,6 +5,9 @@
 
 #define _USE_MATH_DEFINES
 
+//#define USING_ENUM_COLOR
+#define USING_COLORREF
+
 using std::cout;
 using std::cin;
 using std::endl;
@@ -29,7 +32,7 @@ namespace MyGeometry
         TWILIGHT = 0x00CBBFD8
     };
 
-#define SHAPE_TAKE_PARAMETERS unsigned int x, unsigned int y, unsigned int lineWidth = 5, Color color = Color::GREY
+#define SHAPE_TAKE_PARAMETERS unsigned int x, unsigned int y, unsigned int lineWidth, COLORREF color
 #define SHAPE_GIVE_PARAMETERS x, y, lineWidth, color
 
     class Shape
@@ -38,7 +41,14 @@ namespace MyGeometry
         unsigned int x;
         unsigned int y;
         unsigned int lineWindth;
+#ifdef USING_ENUM_COLOR
         Color color;
+#endif // USING_ENUM_COLOR
+
+#ifdef USING_COLORREF
+        COLORREF color;
+#endif // USING_COLORREF
+
     public:
         static const int MIN_SIZE = 20;
         static const int MAX_SIZE = 800;
@@ -59,7 +69,7 @@ namespace MyGeometry
         const unsigned int& getX() const { return x; }
         const unsigned int& getY() const { return y; }
         const unsigned int& getLineWidth() const { return lineWindth; }
-        const Color& getColor() const { return color; }
+        const COLORREF& getColor() const { return color; }
 
         unsigned int setSize(unsigned int size)
         {
@@ -394,17 +404,33 @@ namespace MyGeometry
 
     Shape* ShapeFactory(int shapeID)
     {
+#define PARAMS rand() % 700, rand() % 300, rand() % Shape::MAX_LINE_WIDTH, RGB(rand(), rand(), rand())
         Shape* shape = nullptr;
-        int size = rand() % Shape::MAX_SIZE;
+        const unsigned int maxSize = Shape::MAX_SIZE / 2;
         switch (shapeID)
         {
         case 1:
-            shape = new Rectangle(
-                rand() % Shape::MAX_SIZE, rand() % Shape::MAX_SIZE,
-                rand() % Shape::MAX_HORISONTAL_RESOLUTION, rand() % Shape::MAX_VERTICAL_RESOLUTION,
-                rand() % Shape::MAX_LINE_WIDTH, );
+            shape = new Rectangle(rand() % maxSize, rand() % maxSize, PARAMS);
             break;
         case 2:
+            shape = new Square(rand() % maxSize, PARAMS);
+            break;
+        case 3:
+            shape = new Circle(rand() % maxSize, PARAMS);
+            break;
+        case 4:
+            shape = new TriangleScalene(
+                rand() % maxSize, rand() % maxSize, rand() % maxSize,
+                PARAMS);
+            break;
+        case 5:
+            shape = new TriangleRight(rand() % maxSize, rand() % maxSize, PARAMS);
+            break;
+        case 6:
+            shape = new TriangleIsosceles(rand() % maxSize, rand() % maxSize, PARAMS);
+            break;
+        case 7:
+            shape = new TriangleEquilateral(rand() % maxSize, PARAMS);
             break;
         default:
             break;
@@ -416,11 +442,13 @@ namespace MyGeometry
 int main()
 {
     setlocale(LC_ALL, "");
+    srand(time(NULL));
 
-    const size_t shapeArraySize = 7;
+    const size_t shapeArraySize = 20;
     unsigned int posY = 100;
     unsigned int lineWidth = 8;
 
+#ifdef USING_ENUM_COLOR
     MyGeometry::Shape* shapes[shapeArraySize]
     {
         new MyGeometry::Rectangle(100, 50, 30, posY, lineWidth, MyGeometry::Color::AQUAMARINE),
@@ -431,10 +459,27 @@ int main()
         new MyGeometry::TriangleIsosceles(80, 50, 500, posY + 50, lineWidth, MyGeometry::Color::HELIOTROPE),
         new MyGeometry::TriangleEquilateral(60, 580, posY + 50, lineWidth, MyGeometry::Color::TWILIGHT)
     };
+#endif // USING_ENUM_COLOR
+
+#ifdef USING_COLORREF
+
+    MyGeometry::Shape* shapes[shapeArraySize];
+
+    for (size_t i = 0; i < shapeArraySize; i++)
+    {
+        shapes[i] = MyGeometry::ShapeFactory(1 + rand() % 7);
+    }
+#endif // USING_COLORREF
 
     for (size_t i = 0; i < shapeArraySize; i++)
     {
         //shapes[i]->info();
         shapes[i]->draw();
+        Sleep(500);
+    }
+
+    for (size_t i = 0; i < shapeArraySize; i++)
+    {
+        delete[]shapes[i];
     }
 }
