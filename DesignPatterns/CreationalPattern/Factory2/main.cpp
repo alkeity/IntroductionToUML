@@ -29,10 +29,17 @@ namespace MyGeometry
         TWILIGHT = 0x00CBBFD8
     };
 
+#define SHAPE_TAKE_PARAMETERS unsigned int x, unsigned int y, unsigned int lineWidth = 5, Color color = Color::GREY
+#define SHAPE_GIVE_PARAMETERS x, y, lineWidth, color
 
     class Shape
     {
     protected:
+        unsigned int x;
+        unsigned int y;
+        unsigned int lineWindth;
+        Color color;
+    public:
         static const int MIN_SIZE = 20;
         static const int MAX_SIZE = 800;
         static const int MIN_LINE_WIDTH = 1;
@@ -40,12 +47,7 @@ namespace MyGeometry
         static const int MAX_HORISONTAL_RESOLUTION = 800;
         static const int MAX_VERTICAL_RESOLUTION = 600;
 
-        unsigned int x;
-        unsigned int y;
-        unsigned int lineWindth;
-        Color color;
-    public:
-        Shape(unsigned int x, unsigned int y, unsigned int lineWidth = 5, Color color = Color::GREY) :color(color)
+        Shape(SHAPE_TAKE_PARAMETERS) :color(color)
         {
             setX(x);
             setY(y);
@@ -101,8 +103,7 @@ namespace MyGeometry
         double width;
         double height;
     public:
-        Rectangle(double width, double length, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Shape(x, y, lineWidth, color)
+        Rectangle(double width, double length, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
         {
             setWidth(width);
             setHeight(length);
@@ -167,8 +168,7 @@ namespace MyGeometry
         using Rectangle::setHeight;
         using Rectangle::setWidth;
     public:
-        Square(double side, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Rectangle(side, side, x, y, lineWidth, color) {}
+        Square(double side, SHAPE_TAKE_PARAMETERS) :Rectangle(side, side, SHAPE_GIVE_PARAMETERS) {}
 
         const double& getSide() const { return getWidth(); }
 
@@ -191,8 +191,7 @@ namespace MyGeometry
     {
         double radius;
     public:
-        Circle(double radius, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Shape(x, y, lineWidth, color)
+        Circle(double radius, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
         {
             setRadius(radius);
         }
@@ -210,7 +209,7 @@ namespace MyGeometry
 
         double getPerimeter() const override
         {
-            return 2 * std::numbers::pi * radius;
+            return std::numbers::pi * getDiameter();
         }
 
         void draw() const override
@@ -223,7 +222,8 @@ namespace MyGeometry
             SelectObject(hdc, hPen);
             SelectObject(hdc, hBrush);
 
-            ::RoundRect(hdc, x, y, x + getDiameter(), y + getDiameter(), getDiameter(), getDiameter());
+            //::RoundRect(hdc, x, y, x + getDiameter(), y + getDiameter(), getDiameter(), getDiameter());
+            ::Ellipse(hdc, x, y, x + getDiameter(), y + getDiameter());
 
             DeleteObject(hPen);
             DeleteObject(hBrush);
@@ -247,8 +247,7 @@ namespace MyGeometry
         double sideB;
         double sideC;
     public:
-        Triangle(double sideA, double sideB, double sideC, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Shape(x, y, lineWidth, color)
+        Triangle(double sideA, double sideB, double sideC, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
         {
             setSideA(sideA);
             setSideB(sideB);
@@ -331,8 +330,8 @@ namespace MyGeometry
     class TriangleScalene :public Triangle
     {
     public:
-        TriangleScalene(double sideA, double sideB, double sideC, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(sideA, sideB, sideC, x, y, lineWidth, color) {}
+        TriangleScalene(double sideA, double sideB, double sideC, SHAPE_TAKE_PARAMETERS)
+            :Triangle(sideA, sideB, sideC, SHAPE_GIVE_PARAMETERS) {}
 
         void getVerticles(POINT vertArray[3]) const override
         {
@@ -352,8 +351,8 @@ namespace MyGeometry
             return sqrt(legA * legA + legB * legB);
         }
     public:
-        TriangleRight(double legA, double legB, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(legA, legB, getHypotenuse(legA, legB), x, y, lineWidth, color) {}
+        TriangleRight(double legA, double legB, SHAPE_TAKE_PARAMETERS)
+            :Triangle(legA, legB, getHypotenuse(legA, legB), SHAPE_GIVE_PARAMETERS) {}
 
         void getVerticles(POINT vertArray[3]) const override
         {
@@ -367,8 +366,8 @@ namespace MyGeometry
     class TriangleIsosceles :public Triangle
     {
     public:
-        TriangleIsosceles(double side, double base, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(base, side, side, x, y, lineWidth, color) {}
+        TriangleIsosceles(double side, double base, SHAPE_TAKE_PARAMETERS)
+            :Triangle(base, side, side, SHAPE_GIVE_PARAMETERS) {}
 
         void getVerticles(POINT vertArray[3]) const override
         {
@@ -382,8 +381,8 @@ namespace MyGeometry
     class TriangleEquilateral :public Triangle
     {
     public:
-        TriangleEquilateral(double side, unsigned int x, unsigned int y, unsigned int lineWidth, Color color)
-            :Triangle(side, side, side, x, y, lineWidth, color) {}
+        TriangleEquilateral(double side, SHAPE_TAKE_PARAMETERS)
+            :Triangle(side, side, side, SHAPE_GIVE_PARAMETERS) {}
 
         void getVerticles(POINT vertArray[3]) const override
         {
@@ -392,13 +391,33 @@ namespace MyGeometry
             vertArray[2] = { (long)(x + sideA / 2), (long)(y - sideA) };
         }
     };
+
+    Shape* ShapeFactory(int shapeID)
+    {
+        Shape* shape = nullptr;
+        int size = rand() % Shape::MAX_SIZE;
+        switch (shapeID)
+        {
+        case 1:
+            shape = new Rectangle(
+                rand() % Shape::MAX_SIZE, rand() % Shape::MAX_SIZE,
+                rand() % Shape::MAX_HORISONTAL_RESOLUTION, rand() % Shape::MAX_VERTICAL_RESOLUTION,
+                rand() % Shape::MAX_LINE_WIDTH, );
+            break;
+        case 2:
+            break;
+        default:
+            break;
+        }
+        return shape;
+    }
 }
 
 int main()
 {
     setlocale(LC_ALL, "");
 
-    const unsigned int shapeArraySize = 7;
+    const size_t shapeArraySize = 7;
     unsigned int posY = 100;
     unsigned int lineWidth = 8;
 
@@ -415,6 +434,7 @@ int main()
 
     for (size_t i = 0; i < shapeArraySize; i++)
     {
+        //shapes[i]->info();
         shapes[i]->draw();
     }
 }
