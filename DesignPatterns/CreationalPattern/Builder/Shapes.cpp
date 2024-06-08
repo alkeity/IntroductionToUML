@@ -10,6 +10,8 @@ using std::endl;
 
 // class Shape
 
+#define DEFAULT_SHAPE_PARAMS 0, 0, 1, RGB(255, 255, 255)
+
 MyGeometry::Shape::Shape(SHAPE_TAKE_PARAMETERS) :color(color)
 {
     setX(x);
@@ -29,18 +31,15 @@ unsigned int MyGeometry::Shape::setSize(unsigned int size)
         size;
 }
 
-
 void MyGeometry::Shape::setX(unsigned int x)
 {
     this->x = x < MAX_HORISONTAL_RESOLUTION ? x : MAX_HORISONTAL_RESOLUTION;
 }
 
-
 void MyGeometry::Shape::setY(unsigned int y)
 {
     this->y = y < MAX_VERTICAL_RESOLUTION ? y : MAX_VERTICAL_RESOLUTION;
 }
-
 
 void MyGeometry::Shape::setLineWidth(unsigned int lineWidth)
 {
@@ -49,6 +48,10 @@ void MyGeometry::Shape::setLineWidth(unsigned int lineWidth)
     this->lineWindth = lineWidth;
 }
 
+void MyGeometry::Shape::setColor(COLORREF color)
+{
+    this->color = color;
+}
 
 void MyGeometry::Shape::draw() const
 {
@@ -64,7 +67,6 @@ void MyGeometry::Shape::draw() const
     ReleaseDC(hwnd, hdc);
 }
 
-
 void MyGeometry::Shape::info() const
 {
     cout << "Площадь фигуры: " << getArea() << endl;
@@ -79,6 +81,11 @@ void MyGeometry::Rectangle::drawShape(HDC& hdc) const
     ::Rectangle(hdc, x, y, x + width, y + height);
 }
 
+MyGeometry::Rectangle::Rectangle() :Shape(DEFAULT_SHAPE_PARAMS)
+{
+    setWidth(100);
+    setHeight(200);
+}
 
 MyGeometry::Rectangle::Rectangle(double width, double length, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
 {
@@ -92,18 +99,15 @@ const double& MyGeometry::Rectangle::getHeight() const { return height; }
 void MyGeometry::Rectangle::setWidth(double width) { this->width = setSize(width); }
 void MyGeometry::Rectangle::setHeight(double length) { this->height = setSize(length); }
 
-
 double MyGeometry::Rectangle::getArea() const
 {
     return width * height;
 }
 
-
 double MyGeometry::Rectangle::getPerimeter() const
 {
     return 2 * (width + height);
 }
-
 
 void MyGeometry::Rectangle::info() const
 {
@@ -115,7 +119,9 @@ void MyGeometry::Rectangle::info() const
 
 // class Square
 
+MyGeometry::Square::Square() :Rectangle(100, 100, DEFAULT_SHAPE_PARAMS) {}
 MyGeometry::Square::Square(double side, SHAPE_TAKE_PARAMETERS) :Rectangle(side, side, SHAPE_GIVE_PARAMETERS) {}
+
 const double& MyGeometry::Square::getSide() const { return getWidth(); }
 
 
@@ -140,29 +146,29 @@ void MyGeometry::Circle::drawShape(HDC& hdc) const
     ::Ellipse(hdc, x, y, x + getDiameter(), y + getDiameter());
 }
 
+MyGeometry::Circle::Circle() :Shape(DEFAULT_SHAPE_PARAMS)
+{
+    setRadius(50);
+}
 
 MyGeometry::Circle::Circle(double radius, SHAPE_TAKE_PARAMETERS) :Shape(SHAPE_GIVE_PARAMETERS)
 {
     setRadius(radius);
 }
 
-
 const double& MyGeometry::Circle::getRadius() const { return radius; }
 void MyGeometry::Circle::setRadius(double radius) { this->radius = setSize(radius); }
 double MyGeometry::Circle::getDiameter() const { return radius * 2; }
-
 
 double MyGeometry::Circle::getArea() const
 {
     return std::numbers::pi * (radius * radius);
 }
 
-
 double MyGeometry::Circle::getPerimeter() const
 {
     return std::numbers::pi * getDiameter();
 }
-
 
 void MyGeometry::Circle::info() const
 {
@@ -246,6 +252,8 @@ void MyGeometry::Triangle::draw() const
 
 // class TriangleScalene
 
+MyGeometry::TriangleScalene::TriangleScalene() :Triangle(50, 30, 20, DEFAULT_SHAPE_PARAMS) {}
+
 MyGeometry::TriangleScalene::TriangleScalene(double sideA, double sideB, double sideC, SHAPE_TAKE_PARAMETERS)
     :Triangle(sideA, sideB, sideC, SHAPE_GIVE_PARAMETERS) {}
 
@@ -265,6 +273,8 @@ double MyGeometry::TriangleRight::getHypotenuse(double legA, double legB) const
     return sqrt(legA * legA + legB * legB);
 }
 
+MyGeometry::TriangleRight::TriangleRight():Triangle(50, 30, getHypotenuse(50, 30), DEFAULT_SHAPE_PARAMS) {}
+
 MyGeometry::TriangleRight::TriangleRight(double legA, double legB, SHAPE_TAKE_PARAMETERS)
     :Triangle(legA, legB, getHypotenuse(legA, legB), SHAPE_GIVE_PARAMETERS) {}
 
@@ -277,6 +287,8 @@ void MyGeometry::TriangleRight::getVerticles(POINT vertArray[3]) const
 
 // class TriangleIsosceles
 
+MyGeometry::TriangleIsosceles::TriangleIsosceles() :Triangle(50, 30, 30, DEFAULT_SHAPE_PARAMS) {}
+
 MyGeometry::TriangleIsosceles::TriangleIsosceles(double side, double base, SHAPE_TAKE_PARAMETERS)
     :Triangle(base, side, side, SHAPE_GIVE_PARAMETERS) {}
 
@@ -288,6 +300,8 @@ void MyGeometry::TriangleIsosceles::getVerticles(POINT vertArray[3]) const
 }
 
 // class TriangleEquilateral
+
+MyGeometry::TriangleEquilateral::TriangleEquilateral() :Triangle(50, 50, 50, DEFAULT_SHAPE_PARAMS) {}
 
 MyGeometry::TriangleEquilateral::TriangleEquilateral(double side, SHAPE_TAKE_PARAMETERS)
     :Triangle(side, side, side, SHAPE_GIVE_PARAMETERS) {}

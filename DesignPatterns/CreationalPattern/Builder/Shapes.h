@@ -36,6 +36,7 @@ namespace MyGeometry
         void setX(unsigned int x);
         void setY(unsigned int y);
         void setLineWidth(unsigned int lineWidth);
+        void setColor(COLORREF color);
 
         virtual double getArea() const = 0;
         virtual double getPerimeter() const = 0;
@@ -51,6 +52,7 @@ namespace MyGeometry
 
         void drawShape(HDC& hdc) const override;
     public:
+        Rectangle();
         Rectangle(double width, double length, SHAPE_TAKE_PARAMETERS);
 
         const double& getWidth() const;
@@ -72,6 +74,7 @@ namespace MyGeometry
         using Rectangle::setHeight;
         using Rectangle::setWidth;
     public:
+        Square();
         Square(double side, SHAPE_TAKE_PARAMETERS);
         const double& getSide() const;
         void setSide(double side);
@@ -85,6 +88,7 @@ namespace MyGeometry
 
         void drawShape(HDC& hdc) const override;
     public:
+        Circle();
         Circle(double radius, SHAPE_TAKE_PARAMETERS);
         const double& getRadius() const;
         void setRadius(double radius);
@@ -126,6 +130,7 @@ namespace MyGeometry
     class TriangleScalene :public Triangle
     {
     public:
+        TriangleScalene();
         TriangleScalene(double sideA, double sideB, double sideC, SHAPE_TAKE_PARAMETERS);
         void getVerticles(POINT vertArray[3]) const override;
     };
@@ -133,9 +138,10 @@ namespace MyGeometry
 
     class TriangleRight :public Triangle
     {
-        double getHypotenuse(double legA, double legB) const;
     public:
+        TriangleRight();
         TriangleRight(double legA, double legB, SHAPE_TAKE_PARAMETERS);
+        double getHypotenuse(double legA, double legB) const;
         void getVerticles(POINT vertArray[3]) const override;
     };
 
@@ -143,6 +149,7 @@ namespace MyGeometry
     class TriangleIsosceles :public Triangle
     {
     public:
+        TriangleIsosceles();
         TriangleIsosceles(double side, double base, SHAPE_TAKE_PARAMETERS);
         void getVerticles(POINT vertArray[3]) const override;
     };
@@ -151,6 +158,7 @@ namespace MyGeometry
     class TriangleEquilateral :public Triangle
     {
     public:
+        TriangleEquilateral();
         TriangleEquilateral(double side, SHAPE_TAKE_PARAMETERS);
         void getVerticles(POINT vertArray[3]) const override;
     };
