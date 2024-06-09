@@ -85,7 +85,17 @@ public:
 	void setColor() override { shape->setColor(RGB(248, 164, 165)); }
 };
 
-class TriangleScaleneBuilder :public ShapeBuilder
+class TriangleBuilder :public ShapeBuilder
+{
+public:
+	TriangleBuilder() :ShapeBuilder() {}
+
+	virtual void setSideA() = 0;
+	virtual void setSideB() = 0;
+	virtual void setSideC() = 0;
+};
+
+class TriangleScaleneBuilder :public TriangleBuilder
 {
 public:
 	TriangleScaleneBuilder()
@@ -93,9 +103,9 @@ public:
 		this->shape = new MyGeometry::TriangleScalene();
 	}
 
-	void setSideA() { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideA(300); }
-	void setSideB() { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideB(200); }
-	void setSideC() { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideC(400); }
+	void setSideA() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideA(300); }
+	void setSideB() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideB(200); }
+	void setSideC() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideC(400); }
 
 	void setX() override { shape->setX(250); }
 	void setY() override { shape->setY(430); }
@@ -103,7 +113,7 @@ public:
 	void setColor() override { shape->setColor(RGB(164, 165, 248)); }
 };
 
-class TriangleRightBuilder :public ShapeBuilder
+class TriangleRightBuilder :public TriangleBuilder
 {
 public:
 	TriangleRightBuilder()
@@ -111,9 +121,9 @@ public:
 		this->shape = new MyGeometry::TriangleRight();
 	}
 
-	void setSideA() { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideA(100); }
-	void setSideB() { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideB(200); }
-	void setSideC() { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideC(dynamic_cast<MyGeometry::TriangleRight*>(shape)->getHypotenuse(100, 200)); }
+	void setSideA() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideA(100); }
+	void setSideB() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideB(200); }
+	void setSideC() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideC(dynamic_cast<MyGeometry::TriangleRight*>(shape)->getHypotenuse(100, 200)); }
 
 	void setX() override { shape->setX(650); }
 	void setY() override { shape->setY(330); }
@@ -121,7 +131,7 @@ public:
 	void setColor() override { shape->setColor(RGB(164, 207, 248)); }
 };
 
-class TriangleIsoscelesBuilder :public ShapeBuilder
+class TriangleIsoscelesBuilder :public TriangleBuilder
 {
 public:
 	TriangleIsoscelesBuilder()
@@ -129,9 +139,9 @@ public:
 		this->shape = new MyGeometry::TriangleIsosceles();
 	}
 
-	void setSideA() { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideA(340); }
-	void setSideB() { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideB(200); }
-	void setSideC() { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideC(200); }
+	void setSideA() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideA(340); }
+	void setSideB() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideB(200); }
+	void setSideC() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideC(200); }
 
 	void setX() override { shape->setX(550); }
 	void setY() override { shape->setY(530); }
@@ -139,7 +149,7 @@ public:
 	void setColor() override { shape->setColor(RGB(207, 248, 164)); }
 };
 
-class TriangleEquilateralBuilder :public ShapeBuilder
+class TriangleEquilateralBuilder :public TriangleBuilder
 {
 public:
 	TriangleEquilateralBuilder()
@@ -147,14 +157,56 @@ public:
 		this->shape = new MyGeometry::TriangleEquilateral();
 	}
 
-	void setSideA() { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideA(300); }
-	void setSideB() { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideB(300); }
-	void setSideC() { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideC(300); }
+	void setSideA() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideA(300); }
+	void setSideB() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideB(300); }
+	void setSideC() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideC(300); }
 
 	void setX() override { shape->setX(320); }
 	void setY() override { shape->setY(530); }
 	void setLineWidth() override { shape->setLineWidth(8); }
 	void setColor() override { shape->setColor(RGB(248, 205, 164)); }
+};
+
+class GeometryTeacher
+{
+	ShapeBuilder* builder;
+public:
+	GeometryTeacher() :builder(nullptr) {}
+
+	void prepareShape(ShapeBuilder* builder)
+	{
+		this->builder = builder;
+
+		builder->setX();
+		builder->setY();
+		builder->setLineWidth();
+		builder->setColor();
+
+		if (RectangleBuilder* b = dynamic_cast<RectangleBuilder*>(builder))
+		{
+			dynamic_cast<RectangleBuilder*>(builder)->setWidth();
+			dynamic_cast<RectangleBuilder*>(builder)->setHeight();
+		}
+		else if (SquareBuilder* b = dynamic_cast<SquareBuilder*>(builder))
+		{
+			dynamic_cast<SquareBuilder*>(builder)->setSide();
+		}
+		else if (CircleBuilder* b = dynamic_cast<CircleBuilder*>(builder))
+		{
+			dynamic_cast<CircleBuilder*>(builder)->setRadius();
+		}
+		else if (TriangleBuilder* b = dynamic_cast<TriangleBuilder*>(builder))
+		{
+			dynamic_cast<TriangleBuilder*>(builder)->setSideA();
+			dynamic_cast<TriangleBuilder*>(builder)->setSideB();
+			dynamic_cast<TriangleBuilder*>(builder)->setSideC();
+		}
+	}
+
+	void drawShape()
+	{
+		builder->getShape()->info();
+	}
 };
 
 
