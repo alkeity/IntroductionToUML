@@ -7,7 +7,7 @@ using std::cout;
 using std::cin;
 using std::endl;
 
-#define delimiter "\n|----------------------------------------------|\n"
+#define delimiter "|----------------------------------------------|\n"
 
 
 class ShapeBuilder
@@ -44,11 +44,11 @@ public:
 		this->shape = new MyGeometry::Rectangle();
 	}
 
-	void setWidth() { dynamic_cast<MyGeometry::Rectangle*>(shape)->setWidth(300); }
+	void setWidth() { dynamic_cast<MyGeometry::Rectangle*>(shape)->setWidth(500); }
 	void setHeight() { dynamic_cast<MyGeometry::Rectangle*>(shape)->setHeight(200); }
 
-	void setX() override { shape->setX(200); }
-	void setY() override { shape->setY(500); }
+	void setX() override { shape->setX(400); }
+	void setY() override { shape->setY(100); }
 	void setLineWidth() override { shape->setLineWidth(8); }
 	void setColor() override { shape->setColor(RGB(205, 164, 248)); }
 };
@@ -63,7 +63,7 @@ public:
 
 	void setSide() { dynamic_cast<MyGeometry::Square*>(shape)->setSide(300); }
 
-	void setX() override { shape->setX(400); }
+	void setX() override { shape->setX(700); }
 	void setY() override { shape->setY(200); }
 	void setLineWidth() override { shape->setLineWidth(5); }
 	void setColor() override { shape->setColor(RGB(164, 248, 205)); }
@@ -80,7 +80,7 @@ public:
 	void setRadius() { dynamic_cast<MyGeometry::Circle*>(shape)->setRadius(330); }
 
 	void setX() override { shape->setX(600); }
-	void setY() override { shape->setY(400); }
+	void setY() override { shape->setY(100); }
 	void setLineWidth() override { shape->setLineWidth(3); }
 	void setColor() override { shape->setColor(RGB(248, 164, 165)); }
 };
@@ -107,8 +107,8 @@ public:
 	void setSideB() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideB(200); }
 	void setSideC() override { dynamic_cast<MyGeometry::Triangle*>(shape)->setSideC(400); }
 
-	void setX() override { shape->setX(250); }
-	void setY() override { shape->setY(430); }
+	void setX() override { shape->setX(700); }
+	void setY() override { shape->setY(530); }
 	void setLineWidth() override { shape->setLineWidth(2); }
 	void setColor() override { shape->setColor(RGB(164, 165, 248)); }
 };
@@ -206,6 +206,7 @@ public:
 	void drawShape()
 	{
 		builder->getShape()->info();
+		cout << delimiter;
 	}
 };
 
@@ -213,5 +214,22 @@ public:
 int main()
 {
 	setlocale(LC_ALL, "");
-	// TODO
+	const size_t shapesSize = 7;
+	
+	GeometryTeacher teacher;
+	ShapeBuilder* shapes[shapesSize]
+	{
+		new CircleBuilder(),
+		new RectangleBuilder(), new SquareBuilder(),
+		new TriangleScaleneBuilder(), new TriangleRightBuilder(),
+		new TriangleIsoscelesBuilder(), new TriangleEquilateralBuilder()
+	};
+
+	for (size_t i = 0; i < shapesSize; i++)
+	{
+		teacher.prepareShape(shapes[i]);
+		teacher.drawShape();
+
+		Sleep(500);
+	}
 }
