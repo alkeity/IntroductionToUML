@@ -94,25 +94,27 @@ enum PlayerType { CAR, BIKE };
 
 class PlayerFactory
 {
-	std::map<PlayerType, RecordPlayer*> players;
+	// TODO need to init map somehow
+	static std::map<PlayerType, std::unique_ptr<RecordPlayer>> players;
+	static void Init()
+	{
+		if (players.find(CAR) == players.end())
+		{
+			players[CAR] = std::make_unique<CarPlayer>(CarPlayer("BMW", 735));
+		}
+		if (players.find(BIKE) == players.end())
+		{
+			players[BIKE] = std::make_unique<BikePlayer>(BikePlayer("Harley Davidson", 234));
+		}
+	}
 public:
-	PlayerFactory()
+	static std::unique_ptr<RecordPlayer> createPlayer(PlayerType type)
 	{
-		players[CAR] = new CarPlayer("BMW", 735);
-		players[BIKE] = new BikePlayer("Harley Davidson", 234);
-	}
-
-	~PlayerFactory()
-	{
-		delete[]players[CAR];
-		delete[]players[BIKE];
-	}
-
-	std::unique_ptr<RecordPlayer> createPlayer(PlayerType type)
-	{
+		Init();
 		return players[type]->clone();
 	}
 };
+
 #endif // SOLUTION
 
 
@@ -133,19 +135,15 @@ int main()
 	RecordPlayer bikePlayer = bikePlayerTemplate;
 	bikePlayer.print();
 #endif // PROBLEM
-
+	////smart pointers automate process of deleting objects
 #ifdef SOLUTION
-	PlayerFactory factory;
-	cout << delimiter;
-
-	//smart pointers automate process of deleting objects
-
-	std::unique_ptr<RecordPlayer> carPlayer = factory.createPlayer(CAR);
+	/*cout << delimiter;
+	std::unique_ptr<RecordPlayer> carPlayer = PlayerFactory::createPlayer(CAR);
 	carPlayer->print();
 	cout << delimiter;
 
-	std::unique_ptr<RecordPlayer> bikePlayer = factory.createPlayer(BIKE);
+	std::unique_ptr<RecordPlayer> bikePlayer = PlayerFactory::createPlayer(BIKE);
 	bikePlayer->print();
-	cout << delimiter;
+	cout << delimiter;*/
 #endif // SOLUTION
 }
