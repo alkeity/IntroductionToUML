@@ -31,7 +31,7 @@ public:
 		cout << this << ": default color (black) created\n";
 	}
 
-	Color(int red, int green, int blue)
+	Color(T red, T green, T blue)
 	{
 		setRed(red);
 		setGreen(green);
