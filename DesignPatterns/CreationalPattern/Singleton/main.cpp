@@ -18,6 +18,13 @@ class Human
 		cout << "ctor Human:\t" << this << endl;
 	}
 public:
+	Human(const Human& other) = delete;
+
+	~Human()
+	{
+		cout << "dtor Human:\t" << this << endl;
+	}
+
 	const std::string& getFirstName() const
 	{
 		// Константный метод обязательно должен возвращать константное значение
@@ -48,11 +55,6 @@ public:
 		birthDate.tm_mday = day;
 	}
 
-	~Human()
-	{
-		cout << "dtor Human:\t" << this << endl;
-	}
-
 	void print() const
 	{
 		time_t rtime;
@@ -64,10 +66,10 @@ public:
 		cout << firstName << " " << lastName << " " << age << " y/o" << endl;
 	}
 
-	static Human& getInstance()
+	static Human* getInstance()
 	{
 		if (instance == nullptr) { instance = new Human(); }
-		return *instance;
+		return instance;
 	}
 };
 
@@ -76,12 +78,11 @@ Human* Human::instance = nullptr;
 int main()
 {
 	setlocale(LC_ALL, "");
-	Human main = Human::getInstance();
+	Human* main = Human::getInstance();
 
-	main.setLastName("Vercetty");
-	main.setFirstName("Tommy");
-	main.setBirthDate(1991, 9, 6);
+	main->setLastName("Vercetty");
+	main->setFirstName("Tommy");
+	main->setBirthDate(1991, 9, 6);
 
-	main.print();
-
+	main->print();
 }
