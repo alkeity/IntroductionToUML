@@ -32,7 +32,7 @@ public:
 class RecordPlayer
 {
 public:
-	virtual RecordPlayer* clone() const = 0;
+	virtual std::unique_ptr<RecordPlayer> clone() const = 0;
 	virtual ~RecordPlayer() {}
 
 	virtual void print() const = 0;
@@ -58,9 +58,9 @@ public:
 		cout << this << ": " << ID << " " << name << endl;
 	}
 
-	RecordPlayer* clone() const override
+	std::unique_ptr<RecordPlayer> clone() const override
 	{
-		return new CarPlayer(*this);
+		return std::make_unique<CarPlayer>(*this);
 	}
 };
 
@@ -84,9 +84,9 @@ public:
 		cout << this << ": " << ID << " " << name << endl;
 	}
 
-	RecordPlayer* clone() const override
+	std::unique_ptr<RecordPlayer> clone() const override
 	{
-		return new BikePlayer(*this);
+		return std::make_unique<BikePlayer>(*this);
 	}
 };
 
@@ -108,7 +108,7 @@ public:
 		delete[]players[BIKE];
 	}
 
-	RecordPlayer* createPlayer(PlayerType type)
+	std::unique_ptr<RecordPlayer> createPlayer(PlayerType type)
 	{
 		return players[type]->clone();
 	}
@@ -138,16 +138,14 @@ int main()
 	PlayerFactory factory;
 	cout << delimiter;
 
-	RecordPlayer* carPlayer = factory.createPlayer(CAR);
+	//smart pointers automate process of deleting objects
+
+	std::unique_ptr<RecordPlayer> carPlayer = factory.createPlayer(CAR);
 	carPlayer->print();
 	cout << delimiter;
 
-	RecordPlayer* bikePlayer = factory.createPlayer(BIKE);
+	std::unique_ptr<RecordPlayer> bikePlayer = factory.createPlayer(BIKE);
 	bikePlayer->print();
-	cout << delimiter;
-
-	delete bikePlayer;
-	delete carPlayer;
 	cout << delimiter;
 #endif // SOLUTION
 }
