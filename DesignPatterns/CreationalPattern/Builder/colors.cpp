@@ -9,33 +9,30 @@ using std::endl;
 #define delimiter "\n|----------------------------------------------|\n"
 
 
+template<typename T>
 class Color
 {
-	std::string name;
-	unsigned int red;
-	unsigned int green;
-	unsigned int blue;
+protected:
+	T red;
+	T green;
+	T blue;
 
-	int checkValue(int value)
-	{
-		value < 0 ? value = 0 : value > 255 ? value = 255 : value;
-		return value;
-	}
+	virtual T checkValue(T value) = 0;
+
 public:
+
 	// constructors, destructor
 
 	Color()
 	{
-		name = "Black";
 		red = 0;
 		green = 0;
 		blue = 0;
 		cout << this << ": default color (black) created\n";
 	}
 
-	Color(std::string name, int red, int blue, int green)
+	Color(int red, int green, int blue)
 	{
-		setName(name);
 		setRed(red);
 		setGreen(green);
 		setBlue(blue);
@@ -49,33 +46,49 @@ public:
 
 	// setters
 
-	void setName(std::string name) { this->name = name; }
-	void setRed(int value) { red = checkValue(value); }
-	void setGreen(int value) { green = checkValue(value); }
-	void setBlue(int value) { blue = checkValue(value); }
+	void setRed(T value) { red = checkValue(value); }
+	void setGreen(T value) { green = checkValue(value); }
+	void setBlue(T value) { blue = checkValue(value); }
 
 	// getters
 
-	const std::string& getName() const { return name; }
-	const unsigned int& getRed() const { return red; }
-	const unsigned int& getGreen() const { return green; }
-	const unsigned int& getBlue() const { return blue; }
+	const T& getRed() const { return red; }
+	const T& getGreen() const { return green; }
+	const T& getBlue() const { return blue; }
 
 	// methods
-
-	COLORREF getColorRef() const { return RGB(red, blue, green); }
-
 	void printInfo() const
 	{
 		cout << delimiter;
-		cout << "Color name: " << name << endl;
+		cout << typeid(*this).name() << endl;
 		cout << "RGB values: " << red << "." << blue << "." << green << endl;
 	}
 };
 
-// TODO that's not really a hierarchy thing so far, i need to sleep on it...
 
-int main()
+class ColorInt : public Color<unsigned int>
 {
-	setlocale(LC_ALL, "");
-}
+	unsigned int checkValue(unsigned int value) override
+	{
+		value < 0 ? value = 0 : value > 255 ? value = 255 : value;
+		return value;
+	}
+
+public:
+	ColorInt(unsigned int red, unsigned int green, unsigned int blue) : Color(red, green, blue) {}
+
+	COLORREF getColorRef() const { return RGB(red, blue, green); }
+};
+
+
+class ColorFloat : public Color<float>
+{
+	float checkValue(float value) override
+	{
+		value < 0 ? value = 0 : value > 1 ? value = 1 : value;
+		return value;
+	}
+
+public:
+	ColorFloat(float red, float green, float blue) : Color(red, green, blue) {}
+};
