@@ -94,29 +94,25 @@ enum PlayerType { CAR, BIKE };
 
 class PlayerFactory
 {
-	// TODO need to init map somehow
-	static std::map<PlayerType, std::unique_ptr<RecordPlayer>> players;
-	static void Init()
+	static const std::map<PlayerType, std::unique_ptr<RecordPlayer>> players;
+
+	static std::map<PlayerType, std::unique_ptr<RecordPlayer>> createMap()
 	{
-		if (players.find(CAR) == players.end())
-		{
-			players[CAR] = std::make_unique<CarPlayer>(CarPlayer("BMW", 735));
-		}
-		if (players.find(BIKE) == players.end())
-		{
-			players[BIKE] = std::make_unique<BikePlayer>(BikePlayer("Harley Davidson", 234));
-		}
+		std::map<PlayerType, std::unique_ptr<RecordPlayer>> templayers;
+		templayers[CAR] = std::make_unique<CarPlayer>(CarPlayer("BMW", 735));
+		templayers[BIKE] = std::make_unique<BikePlayer>(BikePlayer("Harley Davidson", 234));
+
+		return templayers;
 	}
 public:
 	static std::unique_ptr<RecordPlayer> createPlayer(PlayerType type)
 	{
-		Init();
-		return players[type]->clone();
+		return players.at(type)->clone();
 	}
 };
-
 #endif // SOLUTION
 
+const std::map<PlayerType, std::unique_ptr<RecordPlayer>> PlayerFactory::players = PlayerFactory::createMap();
 
 int main()
 {
@@ -135,15 +131,15 @@ int main()
 	RecordPlayer bikePlayer = bikePlayerTemplate;
 	bikePlayer.print();
 #endif // PROBLEM
-	////smart pointers automate process of deleting objects
+	//smart pointers automate process of deleting objects
 #ifdef SOLUTION
-	/*cout << delimiter;
+	cout << delimiter;
 	std::unique_ptr<RecordPlayer> carPlayer = PlayerFactory::createPlayer(CAR);
 	carPlayer->print();
 	cout << delimiter;
 
 	std::unique_ptr<RecordPlayer> bikePlayer = PlayerFactory::createPlayer(BIKE);
 	bikePlayer->print();
-	cout << delimiter;*/
+	cout << delimiter;
 #endif // SOLUTION
 }
